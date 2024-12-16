@@ -1,9 +1,22 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div class="fill map">
+    <AuthorizeView>
+        <Authorized>
+            <div class="h-25">
+                <NavMenu />
+            </div>
+        </Authorized>
+
+    </AuthorizeView>
+
+    <article class="fill map"> @Body</article>
+
+</div>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+    
