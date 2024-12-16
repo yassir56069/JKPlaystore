@@ -1,0 +1,19 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+
+@rendermode pageRenderMode
+
+@page "/AddClient"
+
+<h1 class="p-h1">Upload APK</h1>
+
+<div class="flex-center">
+    <div>
+        <InsertTableQuery DatabaseContext="@DbContext" />
+    </div>
+</div>
+@code {
+	private static IComponentRenderMode pageRenderMode = InteractiveServer;
+}
