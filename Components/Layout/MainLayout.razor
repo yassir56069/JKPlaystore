@@ -1,9 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="fill map">
-    <div class="h-25">
-        <NavMenu />
-    </div>
+    <AuthorizeView>
+        <Authorized>
+            <div class="h-25">
+                <NavMenu />
+            </div>
+        </Authorized>
+
+    </AuthorizeView>
+
     <article class="fill map"> @Body</article>
 
 </div>

@@ -1,0 +1,17 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+
+@rendermode pageRenderMode
+
+@page "/Customers"
+
+<h1 class="p-h1">Customers</h1>
+<div class="flex-center">
+	<SearchableDynamicTable DbContext="@DbContext.Customers" ColumnsToShow="@(new[] { "CustomerID","CustomerKey","CustomerName" , "CustomerNote"})" RowLimit="50" />
+</div>
+
+@code {
+	private static IComponentRenderMode pageRenderMode = InteractiveServer;
+}

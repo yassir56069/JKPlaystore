@@ -3,15 +3,22 @@
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext DbContext
 
-@rendermode pageRenderMode
 
 @page "/"
 
-<h1 class="p-h1">Customers</h1>
-<div class="flex-center">
-	<SearchableDynamicTable DbContext="@DbContext.Customers" ColumnsToShow="@(new[] { "CustomerID","CustomerKey","CustomerName" , "CustomerNote"})" RowLimit="50" />
-</div>
+<section>
+	<h2 class="p-h1">Welcome to the JKPlaystore Backoffice </h2>
+	<div class="m-5">
+		<AuthorizeView>
+			<Authorized>
+				You are currently logged in. <a class="fw-bolder" href="/Account/Logout"> You may log out by clicking here. </a>
+			</Authorized>
+			<NotAuthorized>
+				You are currently <strong> not </strong> logged in. <a class="fw-bolder" href="/Account/Login"> login by clicking here. </a>
+			</NotAuthorized>
+		</AuthorizeView>
+	</div>
 
+</section>
 @code {
-	private static IComponentRenderMode pageRenderMode = InteractiveServer;
 }

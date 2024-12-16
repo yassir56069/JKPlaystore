@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager navigationManager
+
+@page "/Account/Logout"
+
+<h1>Logout</h1>
+
+<section>
+	You've successfully logged out. <a class="fw-bolder" href="Account/Login"> login. </a>
+</section>
+
+@code {
+	[CascadingParameter]
+	public HttpContext HttpContext { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		await HttpContext.SignOutAsync("Identity.Application");
+
+		navigationManager.NavigateTo("/", true);
+	}
+
+
+}
+		
