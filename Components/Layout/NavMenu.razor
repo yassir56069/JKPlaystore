@@ -1,0 +1,50 @@
+﻿<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&display=swap" rel="stylesheet">
+@inject NavigationManager NavigationManager
+
+<div class="p-3 navbar flex-row"
+    onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="navbar-container">
+
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class=nav-item px-3">
+                    <a href="/" class="@GetActiveClass("/")">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Customers
+                    </a>
+                </div>
+
+                <div class="nav-item px-3">
+                    <a href="/Tokens" class="@GetActiveClass("/Tokens")">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Tokens
+                    </a>
+                </div>
+
+                <div class="nav-item px-3">
+                    <a href="/Devices" class="@GetActiveClass("/Devices")">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Devices
+                    </a>
+                </div>
+
+
+            </NotAuthorized>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <a href="/AddClient" class="@GetActiveClass("/AddClient")">
+                        <span aria-hidden="true"></span> Add / Upload
+                    </a>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private string GetActiveClass(string href)
+    {
+        // Compare the current URL with the href to determine if this link is active
+        var currentPath = NavigationManager.Uri.Replace(NavigationManager.BaseUri, "/");
+        return currentPath == href ? "navi-link active-link" : "navi-link";
+    }
+}
