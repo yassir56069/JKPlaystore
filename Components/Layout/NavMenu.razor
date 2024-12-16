@@ -11,6 +11,14 @@
             <NotAuthorized>
                 <div class=nav-item px-3">
                     <a href="/" class="@GetActiveClass("/")">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
+                    </a>
+                </div>
+
+            </NotAuthorized>
+            <Authorized>
+                <div class=nav-item px-3">
+                    <a href="/Customers" class="@GetActiveClass("/")">
                         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Customers
                     </a>
                 </div>
@@ -28,8 +36,6 @@
                 </div>
 
 
-            </NotAuthorized>
-            <Authorized>
                 <div class="nav-item px-3">
                     <a href="/AddClient" class="@GetActiveClass("/AddClient")">
                         <span aria-hidden="true"></span> Add / Upload
