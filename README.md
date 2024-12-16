@@ -31,7 +31,7 @@ git clone https://github.com/your-repo/jkplaystore-backoffice.git
 ```
 
 ### 2. Configure the Database Connection
-Set up the database connection string in the `appsettings.json` file:
+Set up the database connection string in the `secrets.json` file:
 ```json
 {
   "ConnectionStrings": {
@@ -63,7 +63,7 @@ Use the provided administrator credentials to log in to the backoffice.
 - Click **Generate Key** to create a unique key for the selected customer.
 
 ## Security Measures
-- **Connection Strings**: Secured using the `appsettings.json` file and encrypted storage mechanisms.
+- **Connection Strings**: Secured using the `secrets.json` file and encrypted storage mechanisms.
 - **User Authentication**: Implements role-based access control to restrict access to administrative functions.
 - **Data Validation**: Ensures integrity by validating user inputs before processing.
 
