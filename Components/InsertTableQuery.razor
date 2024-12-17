@@ -4,64 +4,89 @@
 @inject IServiceProvider ServiceProvider
 
 <div>
-    <div class="mb-3 flex" style="width:96vw; justify-content:space-evenly; gap: 2rem;">
-        <input type="text" class="form-control" placeholder="APK Path" @bind-value="@APKPathInput" />
-        <input type="button" value="Insert APK" class="btn" style="background-color: var(--user-grey)" @onclick="InsertAPKInfo" />
-    </div>
+    <div class="mb-3 flex-column" style="justify-content:space-evenly; gap: 2rem;">
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Token Value" @bind-value="@InputTokenValue" />
+            <input type="text" class="form-control m-1" placeholder="Customer Key" @bind-value="@InputCustomerKey" />
+        </div>
+        <div class="flex-row">
+            <input type="datetime-local" class="form-control m-1" placeholder="Token Expiry (leave empty for none)" @bind-value="@InputTokenExpiry" min=@DateTime.Now />
+            <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertTokenInfoAsync" />
+        </div>
+        </div>
 
     @if (!string.IsNullOrEmpty(StatusMessage))
     {
         <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
             @StatusMessage
         </div>
-    }
+    }   
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public DbContext DatabaseContext { get; set; } = default!;
 
-    private string APKPathInput { get; set; } = string.Empty;
+    private string InputTokenValue { get; set; } = string.Empty;
+    private string InputCustomerKey { get; set; } = string.Empty;
+
+    private string? TokenExpiryInput
+    {
+        get => InputTokenExpiry?.ToString("yyyy-MM-ddTHH:mm");
+        set => InputTokenExpiry = string.IsNullOrWhiteSpace(value) ? null : DateTime.Parse(value);
+    }
+
+    private DateTime? InputTokenExpiry { get; set; } = null;
+
+
     private string StatusMessage { get; set; } = string.Empty;
     private bool InsertSuccessful { get; set; } = false;
 
-    private void InsertAPKInfo()
+    private async Task InsertTokenInfoAsync()
     {
-        if (string.IsNullOrWhiteSpace(APKPathInput))
+        if (string.IsNullOrWhiteSpace(InputTokenValue))
         {
-            StatusMessage = "APK Path cannot be empty.";
+            StatusMessage = "Token Value cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputCustomerKey))
+        {
+            StatusMessage = "Customer key cannot be empty.";
             InsertSuccessful = false;
             StateHasChanged();
             return;
         }
 
+
         try
         {
-            // Create a new APKInfo object with dummy values
-            var newAPKInfo = new APKInfo
+            // Create a new Tokens object
+            var newToken = new Token
                 {
-                    APKName = "DummyAPK", // Dummy APK Name
-                    APKPath = APKPathInput,
-                    ApkVerNumber = "1.0.0", // Dummy Version
-                    DeviceCode = "test_device_120824", // Dummy Device Code
-                    TokenValue = "test_token_120824" // Dummy Token Value
+                    TokenValue = InputTokenValue, // Dummy APK Name
+                    CustomerKey = InputCustomerKey,
+                    TokenInitDate = DateTime.Now,
+                    TokenExpiry = InputTokenExpiry
                 };
 
             // Add the new record to the database
-            DatabaseContext.Set<APKInfo>().Add(newAPKInfo);
-            DatabaseContext.SaveChanges();
+            await DatabaseContext.Set<Token>().AddAsync(newToken);
+            await DatabaseContext.SaveChangesAsync();
 
             // Set success message
-            StatusMessage = $"APK Info inserted successfully. Path: {APKPathInput}";
+            StatusMessage = $"Tokens Info inserted successfully. Value: {InputTokenValue}";
             InsertSuccessful = true;
 
             // Clear the input after successful insert
-            APKPathInput = string.Empty;
+            InputTokenValue = string.Empty;
+            InputCustomerKey = string.Empty;
         }
         catch (Exception ex)
         {
             // Set error message
-            StatusMessage = $"Error inserting APK Info: {ex.Message}";
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
             InsertSuccessful = false;
         }
 

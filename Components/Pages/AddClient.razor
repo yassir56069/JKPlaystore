@@ -7,11 +7,27 @@
 
 @page "/AddClient"
 
-<h1 class="p-h1">Upload APK</h1>
+<div class="p-h1">
 
-<div class="flex-center">
-    <div>
+    <h1 >Upload</h1>
+
+    To assure a valid upload, create a token with a valid existing Customer Key, which you can create on the Customers Page (link). You may then include an expiration date for the token. Make sure to also create a valid apk, apks are shown and can be uploaded here
+</div>
+
+<div class="flex-row m-2  dynamic-query-fill" style="justify-content: space-evenly; gap:2rem;">
+
+    <div class="flex-column" style="justify-content:center;">
+        <h1>Create New Token </h1>
         <InsertTableQuery DatabaseContext="@DbContext" />
+   
+        <DynamicTable T="Token" ColumnsToShow="@(new[] { "TokenID", "TokenValue", "CustomerKey","TokenInitDate", "TokenExpiry"})" RowLimit="50" />
+    </div>
+
+    <div>
+        <h1>Add New APK</h1>
+        <InsertTableQuery DatabaseContext="@DbContext" />
+        
+        <DynamicTable T="APKInfo" ColumnsToShow="@(new[] {"APKID", "APKName", "APKPath"})" RowLimit="50" />
     </div>
 </div>
 @code {
