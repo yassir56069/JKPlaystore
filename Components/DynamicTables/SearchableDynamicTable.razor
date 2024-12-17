@@ -19,7 +19,7 @@
     private List<T> FilteredData { get; set; } = new();
     private List<string> ColumnNames { get; set; } = new();
 
-    private string SearchTerm;
+    private string? SearchTerm;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -75,12 +75,12 @@
 }
 
 <div>
-    <div class="mb-3 flex" style="width:96vw; justify-content:space-evenly; gap: 2rem;">
+    <div class="mb-3 flex" style="justify-content:space-evenly; gap: 2rem;">
         <input type="text" class="form-control" placeholder="Search Term" @bind-value="@SearchTerm" />
         <input type="button" value="Search" class="btn" style="background-color: var(--user-grey)" @onclick="ApplySearch" />
     </div>
 
-    <div class="dynamic-query-fill" style="width: 96vw; padding: 40px;">
+    <div class="dynamic-query-fill" style="padding: 40px;">
         <table class="table">
             <thead>
                 <tr>

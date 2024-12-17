@@ -1,0 +1,88 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+<div>
+    <div class="flex-column" style="justify-content:space-evenly; gap: 2rem;">
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Customer Name" @bind-value="@InputCustomerName" />
+            <input type="text" class="form-control m-1" placeholder="Customer Key" @bind-value="@InputCustomerKey" />
+        </div>
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Customer Note" @bind-value="@InputCustomerNote" />
+            <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertCustomerInfoAsync" />
+        </div>
+        </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
+            @StatusMessage
+        </div>
+    }   
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DbContext DatabaseContext { get; set; } = default!;
+
+    private string InputCustomerName { get; set; } = string.Empty;
+    private string InputCustomerKey { get; set; } = string.Empty;
+    private string? InputCustomerNote { get; set; } = string.Empty;
+
+
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool InsertSuccessful { get; set; } = false;
+
+    private async Task InsertCustomerInfoAsync()
+    {
+        if (string.IsNullOrWhiteSpace(InputCustomerName))
+        {
+            StatusMessage = "Customer Name cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputCustomerKey))
+        {
+            StatusMessage = "Customer key cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        try
+        {
+            // Create a new Tokens object
+            var newCustomer = new Customer
+                {
+                    CustomerName = InputCustomerName, // Dummy APK Name
+                    CustomerKey = InputCustomerKey,
+                    CustomerNote = InputCustomerNote
+                };
+
+            // Add the new record to the database
+            await DatabaseContext.Set<Customer>().AddAsync(newCustomer);
+            await DatabaseContext.SaveChangesAsync();
+
+            // Set success message
+            StatusMessage = $"Tokens Info inserted successfully. Value: {InputCustomerKey}";
+            InsertSuccessful = true;
+
+            // Clear the input after successful insert
+            Array.ForEach(new[]
+            {
+                InputCustomerName, InputCustomerKey, InputCustomerNote,
+            }, x => x = string.Empty);
+        }
+        catch (Exception ex)
+        {
+            // Set error message
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
+            InsertSuccessful = false;
+        }
+
+        // Notify the framework that the state has changed
+        StateHasChanged();
+    }
+}

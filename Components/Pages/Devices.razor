@@ -1,0 +1,61 @@
+﻿@using JKPlaystore.Components.DynamicTables
+@using JKPlaystore.Components.DynamicTables.Inserts
+@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+
+@rendermode pageRenderMode
+
+@page "/Devices"
+
+<div class="" style="padding-top: 30px; padding-left: 30px;">
+	<h1>
+		Devices
+	</h1>
+	
+	<p style="padding-left: 10px;"> You can add device and customer relations and view existing devices on this page. </p>
+</div>
+<div class="flex-center p-h1">
+	<div class="flex-center-w flex-column" style="width: 100%;">
+		<div class=" dynamic-query-fill m-2 p-3">
+			<h2> Add New Customer Device Relation </h2>
+			<InsertCustomerDeviceQuery DatabaseContext="@DbContext" />
+		</div>
+		<div class="m-2 p-3 dynamic-query-fill ">
+			<h2> View Devices </h2>
+
+            @* <SearchableDynamicTable DbContext="DbContext.Cy"/> *@
+            <CustomSearchableDynamicQuery DataProvider="@GetCustomerDeviceData"/>
+                            
+		</div>
+		
+	</div>
+</div>
+
+@code {
+	private static IComponentRenderMode pageRenderMode = InteractiveServer;
+
+    private async Task<List<CustomerDeviceDto>> GetCustomerDeviceData()
+    {
+        var query = await (from cd in DbContext.CustomerDevices
+                           join d in DbContext.Devices on cd.DeviceID equals d.DeviceID
+                           join c in DbContext.Customers on cd.CustomerID equals c.CustomerID
+                           join t in DbContext.Tokens on c.CustomerKey equals t.CustomerKey
+                           select new CustomerDeviceDto
+                               {
+                                   DeviceID = cd.DeviceID,
+                                   DeviceCode = d.DeviceCode,
+                                   DeviceModel = d.DeviceModel,
+                                   CustomerKey = c.CustomerKey,
+                                   TokenInitDate = t.TokenInitDate,
+                                   TokenValue = t.TokenValue,
+                                   TokenExpiry = t.TokenExpiry
+                               })
+                           .Distinct()
+                           .Take(1000)
+                           .ToListAsync();
+
+        return query;
+    }
+}

@@ -7,24 +7,24 @@
 
 @rendermode pageRenderMode
 
-@page "/Customers"
+@page "/Tokens"
 
 <div class="" style="padding-top: 30px; padding-left: 30px;">
 	<h1>
-		Customers
+		Tokens
 	</h1>
 	
-	<p style="padding-left: 10px;"> You can add customers and view existing customers on this page. </p>
+	<p style="padding-left: 10px;"> You can add tokens and view existing tokens on this page. </p>
 </div>
 <div class="flex-center p-h1">
 	<div class="flex-center-w flex-column" style="width: 100%;">
 		<div class=" dynamic-query-fill m-2 p-3">
-			<h2> Add New Customer </h2>
-			<InsertCustomerQuery DatabaseContext="@DbContext" />
+			<h2> Add New Token </h2>
+			<InsertTokenQuery DatabaseContext="@DbContext" />
 		</div>
 		<div class="m-2 p-3 dynamic-query-fill ">
-			<h2> View Customers </h2>
-			<SearchableDynamicTable DbContext="@DbContext.Customers" ColumnsToShow="@(new[] { "CustomerID","CustomerKey","CustomerName" , "CustomerNote"})" RowLimit="1000" />
+			<h2> View Tokens </h2>
+			<SearchableDynamicTable DbContext="@DbContext.Tokens" ColumnsToShow="@(new[] { "TokenID","TokenValue","CustomerKey" , "TokenInitDate", "TokenExpiry"})" RowLimit="1000" />
 		</div>
 		
 	</div>

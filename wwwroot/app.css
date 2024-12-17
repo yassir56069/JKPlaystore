@@ -4,6 +4,7 @@
     --user-black: #606060 !important;
     --true-black: #404040 !important;
     --user-grey: #F3F3F3 !important;
+    --query-grey: #f5f5f5 !important;
     --middle-grey: #D7D7D7 !important;
     --user-valid: #47E36C !important;
     --accent-blue: #26D0F6 !important;
@@ -28,6 +29,12 @@ h1 {
     padding-top: 20px;
 }
 
+.p-h2 {
+    padding-left: 8px;
+    padding-top: 8px;
+}
+
+
 .dynamic-query-fill {
     border-style: solid;
     border-color: var(--middle-grey);
@@ -35,6 +42,14 @@ h1 {
     border-radius: 5px;
     border-radius: 10px;
 }
+
+.dynamic-query-fill-grey {
+    padding: 5px;
+    background-color: var(--query-grey);
+    border-radius: 5px;
+    border-radius: 10px;
+}
+
 
 .flex {
     display: flex;
@@ -56,6 +71,14 @@ h1 {
     width: 100vw;
     justify-content: center;
     align-items: center;
+    gap: 40px;
+}
+
+.flex-center-w {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    justify-content: center;
     gap: 40px;
 }
 
