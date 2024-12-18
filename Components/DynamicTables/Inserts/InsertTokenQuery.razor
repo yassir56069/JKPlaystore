@@ -1,0 +1,96 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+<div>
+    <div class="mb-3 flex-column" style="justify-content:space-evenly; gap: 2rem;">
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Token Value" @bind-value="@InputTokenValue" />
+            <input type="text" class="form-control m-1" placeholder="Customer Key" @bind-value="@InputCustomerKey" />
+        </div>
+        <div class="flex-row">
+            <input type="datetime-local" class="form-control m-1" placeholder="Token Expiry (leave empty for none)" @bind-value="@InputTokenExpiry" min=@DateTime.Now />
+            <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertTokenInfoAsync" />
+        </div>
+        </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
+            @StatusMessage
+        </div>
+    }   
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DbContext DatabaseContext { get; set; } = default!;
+
+    private string InputTokenValue { get; set; } = string.Empty;
+    private string InputCustomerKey { get; set; } = string.Empty;
+
+    private string? TokenExpiryInput
+    {
+        get => InputTokenExpiry?.ToString("yyyy-MM-ddTHH:mm");
+        set => InputTokenExpiry = string.IsNullOrWhiteSpace(value) ? null : DateTime.Parse(value);
+    }
+
+    private DateTime? InputTokenExpiry { get; set; } = null;
+
+
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool InsertSuccessful { get; set; } = false;
+
+    private async Task InsertTokenInfoAsync()
+    {
+        if (string.IsNullOrWhiteSpace(InputTokenValue))
+        {
+            StatusMessage = "Token Value cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputCustomerKey))
+        {
+            StatusMessage = "Customer key cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+
+
+        try
+        {
+            // Create a new Tokens object
+            var newToken = new Token
+                {
+                    TokenValue = InputTokenValue, // Dummy APK Name
+                    CustomerKey = InputCustomerKey,
+                    TokenInitDate = DateTime.Now,
+                    TokenExpiry = InputTokenExpiry
+                };
+
+            // Add the new record to the database
+            await DatabaseContext.Set<Token>().AddAsync(newToken);
+            await DatabaseContext.SaveChangesAsync();
+
+            // Set success message
+            StatusMessage = $"Tokens Info inserted successfully. Value: {InputTokenValue}";
+            InsertSuccessful = true;
+
+            // Clear the input after successful insert
+            InputTokenValue = string.Empty;
+            InputCustomerKey = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            // Set error message
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
+            InsertSuccessful = false;
+        }
+
+        // Notify the framework that the state has changed
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,121 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+<div>
+    <div class="mb-3 flex-column" style="justify-content:space-evenly; align-content:center; gap: 2rem;">
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="APKName" @bind-value="@InputAPKName" />
+            <input type="text" class="form-control m-1" placeholder="APK Version Number" @bind-value="@InputAPKVerNumber" />
+        </div>
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="APK Path" @bind-value="@InputAPKPath" />
+        </div>  
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Device Code" @bind-value="@InputDeviceCode" />
+            <input type="text" class="form-control m-1" placeholder="Token Value" @bind-value="@InputTokenValue" />
+            <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertAPKInfoAsync" />
+        </div>
+        </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
+            @StatusMessage
+        </div>
+    }   
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DbContext DatabaseContext { get; set; } = default!;
+        
+    private string InputAPKPath { get; set; } = string.Empty;
+    private string InputAPKName { get; set; } = string.Empty;
+    private string InputAPKVerNumber { get; set; } = string.Empty;
+
+    private string InputDeviceCode { get; set; } = string.Empty;
+    private string InputTokenValue { get; set; } = string.Empty;
+
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool InsertSuccessful { get; set; } = false;
+
+    private async Task InsertAPKInfoAsync()
+    {
+
+
+        if (string.IsNullOrWhiteSpace(InputAPKPath))
+        {
+            StatusMessage = "Apk Path cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputAPKName))
+        {
+            StatusMessage = "Apk Path cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputAPKVerNumber))
+        {
+            StatusMessage = "Version Number cannot be omitted";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputDeviceCode))
+        {
+            StatusMessage = "Corresponding device code must be included";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputTokenValue))
+        {
+            StatusMessage = "Corresponding token value must be included";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        try
+        {
+            // Create a new Tokens object
+            var newAPKInfo = new APKInfo
+                {
+                    APKName = InputAPKName,
+                    APKPath = InputAPKPath,
+                    ApkVerNumber = InputAPKVerNumber,
+                    DeviceCode = InputDeviceCode,
+                    TokenValue = InputTokenValue
+                };
+
+            // Add the new record to the database
+            await DatabaseContext.Set<APKInfo>().AddAsync(newAPKInfo);
+            await DatabaseContext.SaveChangesAsync();
+
+            // Set success message
+            StatusMessage = $"Tokens Info inserted successfully. Value: {InputTokenValue}";
+            InsertSuccessful = true;
+
+            // Clear the input after successful insert
+            Array.ForEach(new[]
+            {
+                InputAPKName, InputAPKPath, InputAPKVerNumber,
+                InputDeviceCode, InputTokenValue
+            }, x => x = string.Empty);
+
+        }
+        catch (Exception ex)
+        {
+            // Set error message
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
+            InsertSuccessful = false;
+        }
+
+        // Notify the framework that the state has changed
+        StateHasChanged();
+    }
+}

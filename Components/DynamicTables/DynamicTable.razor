@@ -1,0 +1,89 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+@typeparam T where T : class
+
+@code {
+    public DbContext? ScopedDbContext { get; set; }
+
+
+    [Parameter]
+    public IEnumerable<string>? ColumnsToShow { get; set; } = null;
+
+    [Parameter]
+    public int RowLimit { get; set; } = 100;
+
+    private List<T> Data { get; set; } = new();
+    private List<string> ColumnNames { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ServiceProvider == null)
+        {
+            throw new InvalidOperationException("ServiceProvider is not available.");
+        }
+
+        // Create a scoped DbContext instance for this component
+        ScopedDbContext = ServiceProvider.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+
+        // Ensure only one DbContext operation at a time
+        try
+        {
+            // Query the DbSet for the given type
+            Data = await ScopedDbContext.Set<T>().Take(RowLimit).ToListAsync();
+
+            // Fetch column names dynamically if ColumnsToShow is not provided
+            if (ColumnsToShow == null || !ColumnsToShow.Any())
+            {
+                var modelType = typeof(T);
+                ColumnNames = modelType.GetProperties().Select(p => p.Name).ToList();
+            }
+            else
+            {
+                ColumnNames = ColumnsToShow.ToList();
+            }
+        }
+        finally
+        {
+            // Dispose of the scoped DbContext
+            if (ScopedDbContext != null)
+            {
+                await ScopedDbContext.DisposeAsync();
+            }
+        }
+    }
+
+    private object? GetValue(T item, string columnName)
+    {
+        var property = typeof(T).GetProperty(columnName);
+        return property?.GetValue(item);
+    }
+}
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                @foreach (var columnName in ColumnNames)
+                {
+                    <th>@columnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Data)
+            {
+                <tr>
+                    @foreach (var columnName in ColumnNames)
+                    {
+                        <td>@GetValue(item, columnName)</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

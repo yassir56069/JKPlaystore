@@ -1,0 +1,53 @@
+﻿@using JKPlaystore.Components.DynamicTables
+@using JKPlaystore.Components.DynamicTables.Inserts
+@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+
+@rendermode pageRenderMode
+
+@page "/AddClient"
+
+<div class="p-h1">
+
+    <h1 >Upload</h1>
+
+    To assure a valid upload, create a token with a valid existing Customer Key, which you can create on the Customers Page (link). You may then include an expiration date for the token. Make sure to also create a valid apk, apks are shown and can be uploaded here
+</div>
+
+<div class="queries-grid-container">
+    <div class="queries-grid-1 dynamic-query-fill">
+        <div class="flex-column m-1" style="padding-bottom: 3.1rem;">
+            <h2 class="p-h2">Create New Token </h2>
+            <InsertTokenQuery DatabaseContext="@DbContext" />
+        </div >
+        <div class="flex-column m-3 dynamic-query-fill-grey">
+            <DynamicTable T="Token" ColumnsToShow="@(new[] { "TokenID", "TokenValue", "CustomerKey","TokenInitDate", "TokenExpiry"})" RowLimit="50" />
+        </div>
+     </div>
+
+    <div class="queries-grid-2 dynamic-query-fill">
+        <div class="flex-column m-1" style="padding-bottom: 0.5rem;">
+            <h2 class="p-h2">Add New APK</h2>
+            <InsertAPKQuery DatabaseContext="@DbContext" />
+        </div>
+        <div class="flex-column m-3 dynamic-query-fill-grey">
+            <DynamicTable T="APKInfo" ColumnsToShow="@(new[] {"APKName", "APKPath", "ApkVerNumber", "DeviceCode", "TokenValue"})" RowLimit="50" />
+        </div>
+    </div>
+
+    @* <div class="queries-grid-3 dynamic-query-fill"> *@
+
+       
+    @* </div> *@
+
+    @* <div class="queries-grid-4 dynamic-query-fill"> *@
+ 
+    @* </div> *@
+</div>
+
+
+@code {
+	private static IComponentRenderMode pageRenderMode = InteractiveServer;
+}

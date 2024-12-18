@@ -1,0 +1,99 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+@typeparam T where T : class
+
+@code {
+    [Parameter, EditorRequired]
+    public Func<Task<List<T>>> DataProvider { get; set; } = default!;
+
+    [Parameter]
+    public IEnumerable<string>? ColumnsToShow { get; set; } = null;
+
+    private List<T> Data { get; set; } = new();
+    private List<T> FilteredData { get; set; } = new();
+    private List<string> ColumnNames { get; set; } = new();
+
+    private string SearchTerm;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DataProvider == null)
+        {
+            throw new ArgumentNullException(nameof(DataProvider));
+        }
+
+        // Retrieve data from the provided DataProvider
+        Data = await DataProvider.Invoke();
+
+        // Fetch column names dynamically if ColumnsToShow is not provided
+        if (ColumnsToShow == null || !ColumnsToShow.Any())
+        {
+            var modelType = typeof(T);
+            ColumnNames = modelType.GetProperties().Select(p => p.Name).ToList();
+        }
+        else
+        {
+            ColumnNames = ColumnsToShow.ToList();
+        }
+
+        // Initialize FilteredData with all data initially
+        FilteredData = new List<T>(Data);
+    }
+
+    private void ApplySearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            FilteredData = new List<T>(Data);
+        }
+        else
+        {
+            FilteredData = Data.Where(item =>
+                ColumnNames.Any(columnName =>
+                {
+                    var value = GetValue(item, columnName)?.ToString();
+                    return value != null && value.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase);
+                })).ToList();
+        }
+        StateHasChanged();
+    }
+
+    private object? GetValue(T item, string columnName)
+    {
+        var property = typeof(T).GetProperty(columnName);
+        return property?.GetValue(item);
+    }
+}
+<div>
+    <div class="mb-3 flex" style="justify-content:space-evenly; gap: 2rem;">
+        <input type="text" class="form-control" placeholder="Search Term" @bind-value="@SearchTerm" />
+        <input type="button" value="Search" class="btn" style="background-color: var(--user-grey)" @onclick="ApplySearch" />
+    </div>
+
+    <div class="dynamic-query-fill" style="padding: 40px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    @foreach (var columnName in ColumnNames)
+                    {
+                        <th>@columnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in FilteredData)
+                {
+                    <tr>
+                        @foreach (var columnName in ColumnNames)
+                        {
+                            <td>@GetValue(item, columnName)</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

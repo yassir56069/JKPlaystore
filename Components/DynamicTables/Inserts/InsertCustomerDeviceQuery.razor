@@ -1,0 +1,94 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+<div>
+    <div class="flex-column" style="justify-content:space-evenly; gap: 2rem;">
+        <div class="flex-row" style="justify-content:space-evenly; gap: 1rem;">
+            <div class="flex-column" style="width: 100%;">
+                <label for="DeviceID" style="margin-left:6px;">Device ID</label>
+                <input id="DeviceID" type="text" class="form-control m-1" placeholder="Device ID" @bind-value="@InputDeviceID" />
+            </div>
+
+            <div class="flex-column" style="width: 100%;">
+
+                <label for="CustomerID" style="margin-left: 6px;">Customer ID</label>
+                <input id="CustomerID" type="text" class="form-control m-1" placeholder="Customer ID" @bind-value="@InputCustomerID" />
+            </div>
+
+
+        </div>
+        <div class="flex-row">
+            <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertCustomerInfoAsync" />
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))  
+    {
+        <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
+            @StatusMessage
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DbContext DatabaseContext { get; set; } = default!;
+
+    private int InputCustomerID { get; set; } = default ;
+    private int InputDeviceID { get; set; } = default;
+
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool InsertSuccessful { get; set; } = false;
+
+    private async Task InsertCustomerInfoAsync()
+    {
+        if (InputCustomerID == -1)
+        {
+            StatusMessage = "Customer ID cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (InputDeviceID == -1)
+        {
+            StatusMessage = "Customer ID cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        try
+        {
+            // Create a new Tokens object
+            var newCustomerDevice = new CustomerDevice
+                {
+                    CustomerID = InputCustomerID, // Dummy APK Name
+                    DeviceID = InputDeviceID
+                };
+
+            // Add the new record to the database
+            await DatabaseContext.Set<CustomerDevice>().AddAsync(newCustomerDevice);
+            await DatabaseContext.SaveChangesAsync();
+
+            // Set success message
+            StatusMessage = $"New Device Customer Relation Successfully Added";
+            InsertSuccessful = true;
+
+            // Clear the input after successful insert
+            Array.ForEach(new[]
+            {
+                InputCustomerID, InputDeviceID,
+            }, x => x = -1);
+        }
+        catch (Exception ex)
+        {
+            // Set error message
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
+            InsertSuccessful = false;
+        }
+
+        // Notify the framework that the state has changed
+        StateHasChanged();
+    }
+}
