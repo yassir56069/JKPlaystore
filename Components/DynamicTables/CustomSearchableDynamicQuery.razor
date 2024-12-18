@@ -39,7 +39,7 @@
             ColumnNames = ColumnsToShow.ToList();
         }
 
-        // Initialize FilteredData with all data initially
+        // Initialize FilteredData with all data initially  
         FilteredData = new List<T>(Data);
     }
 
@@ -84,7 +84,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in FilteredData)
+                @foreach (var item in FilteredData.AsEnumerable().Reverse())
                 {
                     <tr>
                         @foreach (var columnName in ColumnNames)

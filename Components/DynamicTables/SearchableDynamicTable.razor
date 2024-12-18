@@ -91,7 +91,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in FilteredData)
+                @foreach (var item in FilteredData.AsEnumerable().Reverse())
                 {
                     <tr>
                         @foreach (var columnName in ColumnNames)
