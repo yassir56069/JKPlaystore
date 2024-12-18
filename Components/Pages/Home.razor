@@ -1,17 +1,30 @@
-﻿@using JKPlaystore.Data
+﻿@using JKPlaystore.Components.DynamicTables
+@using JKPlaystore.Data
 @using JKPlaystore.Models
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext DbContext
 
 
+@rendermode pageRenderMode
+
 @page "/"
 
 <section>
-	<h2 class="p-h1">Welcome to the JKPlaystore Backoffice </h2>
+	<h1  class="p-h1">Welcome to the JKPlaystore Backoffice </h1>
 	<div class="m-5">
 		<AuthorizeView>
 			<Authorized>
 				You are currently logged in. <a class="fw-bolder" href="/Account/Logout"> You may log out by clicking here. </a>
+			    <div class="mt-3">
+
+					<div class="p-3 dynamic-query-fill" style="width:full; margin-left: 0 auto;">
+						<h2> View Device Relations </h2>
+
+						@* <SearchableDynamicTable DbContext="DbContext.Devices"/> *@
+						<CustomSearchableDynamicQuery DataProvider="@GetCustomerDeviceData" />
+
+					</div>
+				</div>
 			</Authorized>
 			<NotAuthorized>
 				You are currently <strong> not </strong> logged in. <a class="fw-bolder" href="/Account/Login"> login by clicking here. </a>
@@ -20,5 +33,31 @@
 	</div>
 
 </section>
+
+
 @code {
+	private static IComponentRenderMode pageRenderMode = InteractiveServer;
+
+    private async Task<List<CustomerDeviceDto>> GetCustomerDeviceData()
+    {
+        var query = await (from cd in DbContext.CustomerDevices
+                           join d in DbContext.Devices on cd.DeviceID equals d.DeviceID
+                           join c in DbContext.Customers on cd.CustomerID equals c.CustomerID
+                           join t in DbContext.Tokens on c.CustomerKey equals t.CustomerKey
+                           select new CustomerDeviceDto
+                               {
+                                   DeviceID = cd.DeviceID,
+                                   DeviceCode = d.DeviceCode,
+                                   DeviceModel = d.DeviceModel,
+                                   CustomerKey = c.CustomerKey,
+                                   TokenInitDate = t.TokenInitDate,
+                                   TokenValue = t.TokenValue,
+                                   TokenExpiry = t.TokenExpiry
+                               })
+                           .Distinct()
+                           .Take(1000)
+                           .ToListAsync();
+
+        return query;
+    }
 }

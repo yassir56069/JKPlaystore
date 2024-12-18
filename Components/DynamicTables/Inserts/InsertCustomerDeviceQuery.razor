@@ -5,9 +5,19 @@
 
 <div>
     <div class="flex-column" style="justify-content:space-evenly; gap: 2rem;">
-        <div class="flex-row">
-            <input type="text" class="form-control m-1" placeholder="Customer Name" @bind-value="@InputDeviceID" />
-            <input type="text" class="form-control m-1" placeholder="Customer Key" @bind-value="@InputCustomerID" />
+        <div class="flex-row" style="justify-content:space-evenly; gap: 1rem;">
+            <div class="flex-column" style="width: 100%;">
+                <label for="DeviceID" style="margin-left:6px;">Device ID</label>
+                <input id="DeviceID" type="text" class="form-control m-1" placeholder="Device ID" @bind-value="@InputDeviceID" />
+            </div>
+
+            <div class="flex-column" style="width: 100%;">
+
+                <label for="CustomerID" style="margin-left: 6px;">Customer ID</label>
+                <input id="CustomerID" type="text" class="form-control m-1" placeholder="Customer ID" @bind-value="@InputCustomerID" />
+            </div>
+
+
         </div>
         <div class="flex-row">
             <input type="button" value="Insert APK" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertCustomerInfoAsync" />
@@ -26,8 +36,8 @@
     [Parameter, EditorRequired]
     public DbContext DatabaseContext { get; set; } = default!;
 
-    private int InputCustomerID { get; set; } = -1;
-    private int InputDeviceID { get; set; } = -1;
+    private int InputCustomerID { get; set; } = default ;
+    private int InputDeviceID { get; set; } = default;
 
     private string StatusMessage { get; set; } = string.Empty;
     private bool InsertSuccessful { get; set; } = false;

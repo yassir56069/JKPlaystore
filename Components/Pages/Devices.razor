@@ -22,13 +22,13 @@
 			<h2> Add New Customer Device Relation </h2>
 			<InsertCustomerDeviceQuery DatabaseContext="@DbContext" />
 		</div>
+
 		<div class="m-2 p-3 dynamic-query-fill ">
 			<h2> View Devices </h2>
 
-            @* <SearchableDynamicTable DbContext="DbContext.Cy"/> *@
-            <CustomSearchableDynamicQuery DataProvider="@GetCustomerDeviceData"/>
-                            
-		</div>
+            <SearchableDynamicTable DbContext="DbContext.Devices" ColumnsToShow="@(new[] { "DeviceID", "DeviceCode", "DeviceModel"})" RowLimit="1000" />
+
+        </div>
 		
 	</div>
 </div>
