@@ -1,0 +1,93 @@
+﻿@using JKPlaystore.Data
+@using JKPlaystore.Models
+@using Microsoft.EntityFrameworkCore
+@inject IServiceProvider ServiceProvider
+
+<div>
+    <div class="mb-3 flex-column" style="justify-content:space-evenly; gap: 2rem;">
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Device Code (eg: A9_001-dd-mm-yyyy)" @bind-value="@InputDeviceCode" />
+        </div>
+        <div class="flex-row">
+            <input type="text" class="form-control m-1" placeholder="Device Model (eg: Galaxy Tab A9 SM-X110)" @bind-value="@InputDeviceModel" />
+            <input type="button" value="Add New Device" class="btn m-1" style="background-color: var(--user-grey)" @onclick="InsertDeviceInfoAsync" />
+        </div>
+        </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="alert @(InsertSuccessful ? "alert-success" : "alert-danger")">
+            @StatusMessage
+        </div>
+    }   
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DbContext DatabaseContext { get; set; } = default!;
+
+    private string InputDeviceCode { get; set; } = string.Empty;
+    private string InputDeviceModel { get; set; } = string.Empty;
+
+    private string? DeviceExpiryInput
+    {
+        get => InputDeviceExpiry?.ToString("yyyy-MM-ddTHH:mm");
+        set => InputDeviceExpiry = string.IsNullOrWhiteSpace(value) ? null : DateTime.Parse(value);
+    }
+
+    private DateTime? InputDeviceExpiry { get; set; } = null;
+
+
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool InsertSuccessful { get; set; } = false;
+
+    private async Task InsertDeviceInfoAsync()
+    {
+        if (string.IsNullOrWhiteSpace(InputDeviceCode))
+        {
+            StatusMessage = "Device code cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(InputDeviceModel))
+        {
+            StatusMessage = "Device model cannot be empty.";
+            InsertSuccessful = false;
+            StateHasChanged();
+            return;
+        }
+
+
+        try
+        {
+            // Create a new Devices object
+            var newDevice = new Device
+                {
+                    DeviceCode = InputDeviceCode,
+                    DeviceModel = InputDeviceModel,
+                };
+
+            // Add the new record to the database
+            await DatabaseContext.Set<Device>().AddAsync(newDevice);
+            await DatabaseContext.SaveChangesAsync();
+
+            // Set success message
+            StatusMessage = $"Devices Info inserted successfully. Value: {InputDeviceCode}";
+            InsertSuccessful = true;
+
+            // Clear the input after successful insert
+            InputDeviceCode = string.Empty;
+            InputDeviceModel = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            // Set error message
+            StatusMessage = $"Error inserting Upload: {ex.Message}";
+            InsertSuccessful = false;
+        }
+
+        // Notify the framework that the state has changed
+        StateHasChanged();
+    }
+}
