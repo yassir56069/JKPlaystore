@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JKPlaystore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241216082141_InitialConfiguration")]
+    [Migration("20241218065958_InitialConfiguration")]
     partial class InitialConfiguration
     {
         /// <inheritdoc />
